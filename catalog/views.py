@@ -1,14 +1,22 @@
+from django.http import HttpResponseNotFound
 from django.shortcuts import render
+from django.views.generic import DetailView, ListView
 
 from catalog.models import Product
 
 
 def home(request):
     context = {
-        'products': Product.objects.all(),
         'title': 'Домашняя страница'
     }
-    return render(request, 'catalog/home.html', context)
+    return render(request, 'catalog/home.html', context=context)
+
+
+class CatalogListView(ListView):
+    model = Product
+    template_name = 'catalog/catalog.html'
+    context_object_name = 'products'
+
 
 
 def contacts(request):
@@ -23,10 +31,7 @@ def contacts(request):
     return render(request, 'catalog/contacts.html', context)
 
 
-def detail_product(request, pk):
-    product = Product.objects.get(pk=pk)
-    context = {
-        'product': product,
-        'title': product
-    }
-    return render(request, 'catalog/product.html', context=context)
+class ProductDetailView(DetailView):
+    model = Product
+    template_name = 'catalog/product_detail.html'
+    context_object_name = 'product'
