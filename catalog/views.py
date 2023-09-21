@@ -1,8 +1,10 @@
 from django.http import HttpResponseNotFound
 from django.shortcuts import render
-from django.views.generic import DetailView, ListView
+from django.urls import reverse_lazy
+from django.views.generic import DetailView, ListView, CreateView, UpdateView, DeleteView
 
-from catalog.models import Product
+from catalog.forms import ProductForm
+from catalog.models import Product, Category
 
 
 def home(request):
@@ -10,13 +12,6 @@ def home(request):
         'title': 'Домашняя страница'
     }
     return render(request, 'catalog/home.html', context=context)
-
-
-class CatalogListView(ListView):
-    model = Product
-    template_name = 'catalog/catalog.html'
-    context_object_name = 'products'
-
 
 
 def contacts(request):
@@ -31,7 +26,31 @@ def contacts(request):
     return render(request, 'catalog/contacts.html', context)
 
 
+class ProductListView(ListView):
+    model = Product
+    template_name = 'catalog/products_list.html'
+    context_object_name = 'products'
+
+
 class ProductDetailView(DetailView):
     model = Product
     template_name = 'catalog/product_detail.html'
     context_object_name = 'product'
+
+
+class ProductCreateView(CreateView):
+    model = Product
+    form_class = ProductForm
+    success_url = reverse_lazy('catalog:products')
+
+
+class ProductUpdateView(UpdateView):
+    model = Product
+    form_class = ProductForm
+    success_url = reverse_lazy('catalog:products')
+
+
+class ProductDeleteView(DeleteView):
+    model = Product
+    template_name = 'catalog/product_confirm_delete.html'
+    success_url = reverse_lazy('catalog:products')
