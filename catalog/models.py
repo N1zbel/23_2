@@ -22,7 +22,7 @@ class Product(models.Model):
     category = models.ForeignKey(Category, on_delete=models.CASCADE, verbose_name='Название категории')
     purchase_price = models.IntegerField(verbose_name='Цена продукта')
     date_of_creation = models.DateField(auto_now_add=True, verbose_name='Дата создания')
-    last_modified_date = models.DateField(verbose_name='Дата последнего изменения')
+    last_modified_date = models.DateField(auto_now=True, verbose_name='Дата последнего изменения')
 
     def __str__(self):
         return f"{self.name}"
@@ -30,3 +30,17 @@ class Product(models.Model):
     class Meta:
         verbose_name = 'Продукт'
         verbose_name_plural = 'Продукты'
+
+
+class Version(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, verbose_name='Название продукта')
+    version_num = models.FloatField(verbose_name='Номер версии')
+    version_name = models.CharField(max_length=100, verbose_name='Название версии')
+    is_active = models.BooleanField(default=True, verbose_name='Признак версии')
+
+    def __str__(self):
+        return self.version_name
+
+    class Meta:
+        verbose_name = 'Версию'
+        verbose_name_plural = 'Версии'
