@@ -4,7 +4,7 @@ from django.urls import reverse_lazy
 from django.views.generic import DetailView, ListView, CreateView, UpdateView, DeleteView
 
 from catalog.forms import ProductForm
-from catalog.models import Product, Category
+from catalog.models import Product
 
 
 def home(request):
@@ -43,11 +43,25 @@ class ProductCreateView(CreateView):
     form_class = ProductForm
     success_url = reverse_lazy('catalog:products')
 
+    def form_valid(self, form):
+        selected_version = form.cleaned_data['version']
+        product = form.save(commit=False)
+        product.save()
+        product.versions.set([selected_version])
+        return super().form_valid(form)
+
 
 class ProductUpdateView(UpdateView):
     model = Product
     form_class = ProductForm
     success_url = reverse_lazy('catalog:products')
+
+    def form_valid(self, form):
+        selected_version = form.cleaned_data['version']
+        product = form.instance
+        product.versions.clear()
+        product.versions.add(selected_version)
+        return super().form_valid(form)
 
 
 class ProductDeleteView(DeleteView):
