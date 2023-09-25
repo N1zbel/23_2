@@ -23,6 +23,8 @@ class Product(models.Model):
     purchase_price = models.IntegerField(verbose_name='Цена продукта')
     date_of_creation = models.DateField(auto_now_add=True, verbose_name='Дата создания')
     last_modified_date = models.DateField(auto_now=True, verbose_name='Дата последнего изменения')
+    versions = models.ManyToManyField('catalog.Version', related_name='products', blank=True,
+                                      verbose_name='Версии продукта')
 
     def __str__(self):
         return f"{self.name}"
@@ -33,10 +35,10 @@ class Product(models.Model):
 
 
 class Version(models.Model):
-    product = models.ForeignKey(Product, on_delete=models.CASCADE, verbose_name='Название продукта')
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, verbose_name='Продукт')
     version_num = models.FloatField(verbose_name='Номер версии')
     version_name = models.CharField(max_length=100, verbose_name='Название версии')
-    is_active = models.BooleanField(default=True, verbose_name='Признак версии')
+    is_active = models.BooleanField(default=True, verbose_name='Признак текущей версии')
 
     def __str__(self):
         return self.version_name
