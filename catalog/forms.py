@@ -1,10 +1,11 @@
 from django import forms
 
-from catalog.models import Product
+from catalog.models import Product, Version
 
 
 class ProductForm(forms.ModelForm):
     unused_words = ['казино', 'криптовалюта', 'крипта', 'биржа', 'дешево', 'бесплатно', 'обман', 'полиция', 'радар']
+    version = forms.ModelChoiceField(queryset=Version.objects.all(), empty_label="Выберите версию", required=False)
 
     class Meta:
         model = Product
@@ -23,3 +24,10 @@ class ProductForm(forms.ModelForm):
             if word in cleaned_description:
                 raise forms.ValidationError(f'Слово {word} запрещено')
         return cleaned_description
+
+    def clean(self):
+        cleaned_version = super().clean()
+        active_versions = [version for version in self.cleaned_data.get('versions', []) if version.is_active]
+
+        if len(active_versions) > 1:
+            raise forms.ValidationError("Выберите одну активную версию продукта.")
