@@ -11,15 +11,18 @@
         <div class="col-4">
             <div class="card mb-4 box-shadow">
                 <div class="card-header">
-                    <h4 class="my-0 font-weight-normal " style="color: blue">{{ product.name }}</h4>
+                    <a href="{% url 'catalog:product_detail' product.pk %}"><h4
+                            class="my-0 font-weight-normal "
+                                                                                style="color: blue">{{ product.name }}</h4></a>
                 </div>
                 <div class="card-body">
                     <h1 class="card-title pricing-card-title">{{ product.purchase_price }} $</h1>
-                    {% if product.version_set.exists %}
+                    {% if product.versions.exists %}
                     <ul>
-                        {% for version in product.version_set.all %}
+                        {% for version in product.versions.all %}
                         {% if version.is_active %}
-                        <p>Версия продукта: {{ version.version_name }}</p>
+                        <li>Версия продукта: {{ version.version_name }}</li>
+                        <li>Номер версии: {{ version.version_num }}</li>
                         {% endif %}
                         {% endfor %}
                     </ul>

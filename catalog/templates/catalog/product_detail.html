@@ -13,18 +13,18 @@
                 <div class="card-body">
                     <img src="{{ product.image.url }}" alt="{{ product.name }}" class="img-fluid">
                     <h1 class="card-title pricing-card-title">{{product.purchase_price}} $</h1>
-                    {% if product.version_set.exists %}
-                    <ul>
-                        {% for version in product.version_set.all %}
-                        {% if version.is_active %}
-                        <p>Версия продукта: {{ version.version_name }}</p>
-                        <p>Номер версии: {{ version.version_num }}</p>
-                        {% endif %}
-                        {% endfor %}
-                    </ul>
-                    {% else %}
-                    <p>Нет версий для этого продукта</p>
-                    {% endif %}
+                    {% if product.versions.exists %}
+    <ul>
+        {% for version in product.versions.all %}
+            {% if version.is_active %}
+                <li>Версия продукта: {{ version.version_name }}</li>
+                <li>Номер версии: {{ version.version_num }}</li>
+            {% endif %}
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>Нет версий для этого продукта</p>
+{% endif %}
                     <ul class="list-unstyled mt-3 mb-4 text-start m-3">
                         <li> - {{ product.description|linebreaks }}</li>
 
