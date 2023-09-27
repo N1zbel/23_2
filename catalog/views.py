@@ -1,10 +1,10 @@
-from django.http import HttpResponseNotFound
+from django.http import HttpResponseRedirect, HttpResponseForbidden
 from django.shortcuts import render
 from django.urls import reverse_lazy
 from django.views.generic import DetailView, ListView, CreateView, UpdateView, DeleteView
-
 from catalog.forms import ProductForm
 from catalog.models import Product
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 
 def home(request):
@@ -38,12 +38,14 @@ class ProductDetailView(DetailView):
     context_object_name = 'product'
 
 
-class ProductCreateView(CreateView):
+class ProductCreateView(LoginRequiredMixin, CreateView):
     model = Product
     form_class = ProductForm
     success_url = reverse_lazy('catalog:products')
 
     def form_valid(self, form):
+        form.instance.author = self.request.user
+
         selected_version = form.cleaned_data['version']
         product = form.save(commit=False)
         product.save()
@@ -51,12 +53,14 @@ class ProductCreateView(CreateView):
         return super().form_valid(form)
 
 
-class ProductUpdateView(UpdateView):
+class ProductUpdateView(LoginRequiredMixin, UpdateView):
     model = Product
     form_class = ProductForm
     success_url = reverse_lazy('catalog:products')
 
     def form_valid(self, form):
+        form.instance.author = self.request.user
+
         selected_version = form.cleaned_data['version']
         product = form.instance
         product.versions.clear()
@@ -64,7 +68,19 @@ class ProductUpdateView(UpdateView):
         return super().form_valid(form)
 
 
-class ProductDeleteView(DeleteView):
+class ProductDeleteView(LoginRequiredMixin, DeleteView):
     model = Product
     template_name = 'catalog/product_confirm_delete.html'
     success_url = reverse_lazy('catalog:products')
+
+    def get_queryset(self):
+        return Product.objects.filter(author=self.request.user)
+
+    def delete(self, request, *args, **kwargs):
+        self.object = self.get_object()
+
+        if self.object.author == self.request.user:
+            self.object.delete()
+            return HttpResponseRedirect(self.get_success_url())
+
+        return HttpResponseForbidden("Вы не можете удалить этот товар")

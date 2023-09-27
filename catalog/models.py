@@ -1,5 +1,7 @@
 from django.db import models
 
+from user_app.models import User
+
 NULLABLE = {'blank': True, 'null': True}
 
 
@@ -25,6 +27,7 @@ class Product(models.Model):
     last_modified_date = models.DateField(auto_now=True, verbose_name='Дата последнего изменения')
     versions = models.ManyToManyField('catalog.Version', related_name='products', blank=True,
                                       verbose_name='Версии продукта')
+    author = models.ForeignKey(User, on_delete=models.CASCADE, **NULLABLE)
 
     def __str__(self):
         return f"{self.name}"
