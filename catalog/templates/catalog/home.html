@@ -1,5 +1,22 @@
 {% extends "catalog/base.html" %}
 {% block title %} Домашняя страница {% endblock %}
 {% block content %}
+<div class="row">
+<div class="pricing-header px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
+<h1>Сейчас вы на главной странице </h1>
+    <h1>Вы можете выбрать один из пунктов меню</h1>
+    <a href="{% url 'catalog:products' %}"><h2>Вы можете посмотреть список продуктов.</h2></a>
+    <a href="{% url 'catalog:contacts' %}"><h2>Вы можете оставить свои контакты и увидеть наши.</h2></a>
+    <a href="{% url 'blog:list' %}"><h2>Вы можете просмотреть записи в блоге или создать их.</h2></a>
+    {% if user.is_authenticated %}
+    <a href="{% url 'user_app:logout' %}"><h2>Вы можете выйти из своего аккаунта.</h2></a>
+    {% else %}
+    <a href="{% url 'user_app:login' %}"><h2>
+    Вы можете авторизироваться или зарегистрироваться у нас на сайте.</h2></a>
+    {% endif %}
+    <a href="/basket/"><h2>Или же посмотреть корзину.</h2></a>
+</div>
 
+
+</div>
 {% endblock %}
