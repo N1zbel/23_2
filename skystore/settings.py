@@ -10,21 +10,23 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
-from pathlib import Path
 import os
+from dotenv import load_dotenv
+from pathlib import Path
+import redis
 
-gmail = os.getenv('gmail')
-gmail_password = os.getenv('gmail_password')
-postgres_password = os.getenv('pgadmin')
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+load_dotenv(BASE_DIR / '.env')
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-p=!_#(v811qqi&hcgv5b)$xhsmegx&^*abiq0soo$2phvq1ask'
+SECRET_KEY = os.getenv('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -81,9 +83,9 @@ WSGI_APPLICATION = 'skystore.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'skystore',
+        'NAME': os.getenv('DATABASE_NAME'),
         'USER': 'postgres',
-        'PASSWORD': postgres_password,
+        'PASSWORD': os.getenv('POSTGRES_PASSWORD'),
     }
 }
 
@@ -139,7 +141,20 @@ LOGIN_REDIRECT_URL = '/'
 
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
-EMAIL_HOST_USER = gmail
-EMAIL_HOST_PASSWORD = gmail_password
+EMAIL_HOST_USER = os.getenv('GMAIL')
+EMAIL_HOST_PASSWORD = os.getenv('GMAIL_PASSWORD')
 EMAIL_USE_TLS = True
 EMAIL_USE_SSL = False
+
+CACHE_ENABLED = os.getenv('CACHE_ENABLED') == 'True'
+
+if CACHE_ENABLED:
+    CACHES = {
+        'default': {
+            'BACKEND': 'django_redis.cache.RedisCache',
+            'LOCATION': os.getenv('CACHE_LOCATION'),
+            'OPTIONS': {
+                'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+            }
+        }
+    }

@@ -1,3 +1,4 @@
+from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseRedirect, HttpResponseForbidden
 from django.shortcuts import render
 from django.urls import reverse_lazy
@@ -5,6 +6,7 @@ from django.views.generic import DetailView, ListView, CreateView, UpdateView, D
 from catalog.forms import ProductForm
 from catalog.models import Product
 from django.contrib.auth.mixins import LoginRequiredMixin
+from .services import get_categories
 
 
 def home(request):
@@ -30,6 +32,12 @@ class ProductListView(ListView):
     model = Product
     template_name = 'catalog/products_list.html'
     context_object_name = 'products'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        categories = get_categories()
+        context['categories'] = categories
+        return context
 
 
 class ProductDetailView(DetailView):
@@ -66,6 +74,18 @@ class ProductUpdateView(LoginRequiredMixin, UpdateView):
         product.versions.clear()
         product.versions.add(selected_version)
         return super().form_valid(form)
+
+    def get_queryset(self):
+        return Product.objects.filter(author=self.request.user)
+
+    def update(self, request, *args, **kwargs):
+        self.object = self.get_object()
+
+        if self.object.author == self.request.user:
+            self.object.delete()
+            return HttpResponseRedirect(self.get_success_url())
+
+        return HttpResponseForbidden("Вы не можете изменять этот товар")
 
 
 class ProductDeleteView(LoginRequiredMixin, DeleteView):
